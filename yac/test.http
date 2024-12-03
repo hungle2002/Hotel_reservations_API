@@ -1,6 +1,6 @@
 GET http:localhost:3000/reservations
 
-GET http:localhost:3000/reservations/674dda3e37f8bf608517aebc
+GET http:localhost:3000/reservations/674f1374df2699501bf6b8c7
 
 POST http://localhost:3000/reservations
 Content-Type: application/json
