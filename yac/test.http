@@ -1,1 +1,15 @@
-GET http:localhost:3000
+GET http:localhost:3000/reservations
+
+GET http:localhost:3000/reservations/674dda3e37f8bf608517aebc
+
+POST http://localhost:3000/reservations
+Content-Type: application/json
+
+{
+  "startDate": "12/20/2022",
+  "endDate": "12/25/2022",
+  "placeId": "12345",
+  "invoiceId": "493"
+}
+
+DELETE http://localhost:3000/reservations/674dda3e37f8bf608517aebc
