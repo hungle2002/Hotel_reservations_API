@@ -2,6 +2,17 @@ POST http://localhost:3001/users
 Content-Type: application/json
 
 {
+  "email": "b@gmail.com",
+  "password": "@Password123"
+}
+
+
+POST http://localhost:3001/auth/login
+Content-Type: application/json
+
+{
   "email": "a@gmail.com",
   "password": "@Password123"
 }
+
+GET http://localhost:3001/users
