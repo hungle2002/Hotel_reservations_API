@@ -40,7 +40,10 @@ export class PaymentsService {
       // payment_method_types: ['card'],
     });
 
-    this.notificationsClient.emit('notify_email', { email });
+    this.notificationsClient.emit('notify_email', {
+      email,
+      text: `Your payment of $${amount} has completed successfully`,
+    });
 
     return paymentIntent;
   }
