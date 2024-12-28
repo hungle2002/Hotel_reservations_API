@@ -1,13 +1,13 @@
+import { Role } from '@app/common';
 import { Optional } from '@nestjs/common';
 import {
   IsArray,
   IsEmail,
   IsNotEmpty,
-  IsString,
   IsStrongPassword,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class CreateUser {
   @IsEmail()
   @IsNotEmpty()
   email: string;
@@ -18,7 +18,6 @@ export class CreateUserDto {
 
   @Optional()
   @IsArray()
-  @IsString({ each: true })
   @IsNotEmpty({ each: true })
-  roles?: string[];
+  roles?: Role[];
 }

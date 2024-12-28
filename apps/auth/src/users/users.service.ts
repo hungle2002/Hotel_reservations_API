@@ -5,9 +5,9 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { UsersRepository } from './users.repository';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UserDocument } from './models/user.schema';
-import { GetUserDto } from './dto/get-user.dto';
+import { CreateUser } from './dto/create-user.dto';
+import { GetUser } from './dto/get-user.dto';
+import { User } from '@app/common';
 
 @Injectable()
 export class UsersService {
@@ -17,18 +17,19 @@ export class UsersService {
      */
     private readonly usersRepository: UsersRepository,
   ) {}
-  async create(createUserDto: CreateUserDto) {
-    await this.validateCreateUserDto(createUserDto);
-    return this.usersRepository.create({
-      ...createUserDto,
-      password: await bcrypt.hash(createUserDto.password, 10),
+  async create(createUser: CreateUser) {
+    await this.validateCreateUser(createUser);
+    const user = new User({
+      ...createUser,
+      password: await bcrypt.hash(createUser.password, 10),
     });
+    return this.usersRepository.create(user);
   }
 
-  private async validateCreateUserDto(createUserDto: CreateUserDto) {
+  private async validateCreateUser(createUser: CreateUser) {
     try {
       await this.usersRepository.findOne({
-        email: createUserDto.email,
+        email: createUser.email,
       });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
@@ -37,7 +38,7 @@ export class UsersService {
     throw new UnprocessableEntityException('Email already existed!');
   }
 
-  async verifyUser(email: string, password: string): Promise<UserDocument> {
+  async verifyUser(email: string, password: string): Promise<User> {
     const user = await this.usersRepository.findOne({ email });
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
@@ -46,7 +47,7 @@ export class UsersService {
     return user;
   }
 
-  async getUser(getUserDto: GetUserDto) {
-    return this.usersRepository.findOne(getUserDto);
+  async getUser(getUser: GetUser) {
+    return this.usersRepository.findOne(getUser);
   }
 }

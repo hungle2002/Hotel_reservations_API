@@ -9,8 +9,8 @@ import {
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
 import { AUTH_SERVICE } from '../constants/services';
-import { UserDto } from '../dto';
 import { Reflector } from '@nestjs/core';
+import { User } from '../models';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -31,14 +31,14 @@ export class JwtAuthGuard implements CanActivate {
     const roles = this.reflector.get<string[]>('roles', context.getHandler());
 
     return this.authClient
-      .send<UserDto>('authenticate', {
+      .send<User>('authenticate', {
         Authentication: jwt,
       })
       .pipe(
         tap((res) => {
           if (roles) {
             for (const role of roles) {
-              if (!res.roles?.includes(role)) {
+              if (!res.roles?.map((r) => r.name).includes(role)) {
                 this.logger.error(
                   `User ${res.email} does not have ${role} role`,
                 );
