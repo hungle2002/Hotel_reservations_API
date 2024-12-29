@@ -1,13 +1,15 @@
-import { Role } from '@app/common';
 import { Optional } from '@nestjs/common';
 import {
   IsArray,
   IsEmail,
   IsNotEmpty,
   IsStrongPassword,
+  ValidateNested,
 } from 'class-validator';
+import { RoleDto } from './role.dto';
+import { Type } from 'class-transformer';
 
-export class CreateUser {
+export class CreateUserDto {
   @IsEmail()
   @IsNotEmpty()
   email: string;
@@ -18,6 +20,7 @@ export class CreateUser {
 
   @Optional()
   @IsArray()
-  @IsNotEmpty({ each: true })
-  roles?: Role[];
+  @ValidateNested({ each: true })
+  @Type(() => RoleDto)
+  roles?: RoleDto[];
 }

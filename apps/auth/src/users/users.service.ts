@@ -5,9 +5,9 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { UsersRepository } from './users.repository';
-import { CreateUser } from './dto/create-user.dto';
-import { GetUser } from './dto/get-user.dto';
-import { User } from '@app/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { GetUserDto } from './dto/get-user.dto';
+import { Role, User } from '@app/common';
 
 @Injectable()
 export class UsersService {
@@ -17,19 +17,20 @@ export class UsersService {
      */
     private readonly usersRepository: UsersRepository,
   ) {}
-  async create(createUser: CreateUser) {
-    await this.validateCreateUser(createUser);
+  async create(createUserDto: CreateUserDto) {
+    await this.validateCreateUser(createUserDto);
     const user = new User({
-      ...createUser,
-      password: await bcrypt.hash(createUser.password, 10),
+      ...createUserDto,
+      password: await bcrypt.hash(createUserDto.password, 10),
+      roles: createUserDto?.roles?.map((roleDto) => new Role(roleDto)),
     });
     return this.usersRepository.create(user);
   }
 
-  private async validateCreateUser(createUser: CreateUser) {
+  private async validateCreateUser(createUserDto: CreateUserDto) {
     try {
       await this.usersRepository.findOne({
-        email: createUser.email,
+        email: createUserDto.email,
       });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
@@ -47,7 +48,11 @@ export class UsersService {
     return user;
   }
 
-  async getUser(getUser: GetUser) {
-    return this.usersRepository.findOne(getUser);
+  async getUser(getUserDto: GetUserDto) {
+    return this.usersRepository.findOne(getUserDto, { roles: true });
+  }
+
+  async getAllUsers() {
+    return this.usersRepository.find({});
   }
 }
