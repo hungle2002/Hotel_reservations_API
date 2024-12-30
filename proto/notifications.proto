@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package notifications;
+
+service NotificationsService {
+  rpc NotifyEmail (NotifyEmailRequest) returns (Empty) {}
+}
+
+message Empty {}
+
+message NotifyEmailRequest {
+  string email = 1;
+  string text = 2;
+}
