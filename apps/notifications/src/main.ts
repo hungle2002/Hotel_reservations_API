@@ -9,10 +9,10 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   app.useLogger(app.get(Logger));
   app.connectMicroservice({
-    transport: Transport.TCP,
+    transport: Transport.RMQ,
     options: {
-      host: '0.0.0.0',
-      port: configService.get<number>('PORT'),
+      urls: [configService.getOrThrow<string>('RMQ_URI')],
+      queue: 'notifications',
     },
   });
   await app.startAllMicroservices();
