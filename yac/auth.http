@@ -2,7 +2,7 @@ POST http://localhost:3001/users
 Content-Type: application/json
 
 {
-  "email": "hunglq2@myleet.com",
+  "email": "hunglq3@myleet.com",
   "password": "@Password123",
   "roles": ["Admin"]
 }
@@ -12,7 +12,7 @@ POST http://localhost:3001/auth/login
 Content-Type: application/json
 
 {
-  "email": "hunglq2@myleet.com",
+  "email": "hunglq@myleet.com",
   "password": "@Password123"
 }
 

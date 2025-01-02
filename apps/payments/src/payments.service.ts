@@ -1,18 +1,22 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
-import { NOTIFICATIONS_SERVICE } from '@app/common';
-import { ClientProxy } from '@nestjs/microservices';
+import {
+  NOTIFICATIONS_SERVICE_NAME,
+  NotificationsServiceClient,
+} from '@app/common';
+import { ClientGrpc } from '@nestjs/microservices';
 import { PaymentsCreateChargeDto } from '../dto/payments-create-charge.dto';
 
 @Injectable()
-export class PaymentsService {
+export class PaymentsService implements OnModuleInit {
   private readonly stripe = new Stripe(
     this.configService.get('STRIPE_SECRET_KEY'),
     {
       apiVersion: '2024-11-20.acacia',
     },
   );
+  private notificationsService: NotificationsServiceClient;
 
   constructor(
     /**
@@ -22,9 +26,16 @@ export class PaymentsService {
     /**
      * Injecting notificaitonClient
      */
-    @Inject(NOTIFICATIONS_SERVICE)
-    private readonly notificationsClient: ClientProxy,
+    @Inject(NOTIFICATIONS_SERVICE_NAME)
+    private readonly client: ClientGrpc,
   ) {}
+
+  onModuleInit() {
+    this.notificationsService =
+      this.client.getService<NotificationsServiceClient>(
+        NOTIFICATIONS_SERVICE_NAME,
+      );
+  }
 
   async createCharge({ amount, email }: PaymentsCreateChargeDto) {
     const paymentIntent = await this.stripe.paymentIntents.create({
@@ -40,10 +51,19 @@ export class PaymentsService {
       // payment_method_types: ['card'],
     });
 
-    this.notificationsClient.emit('notify_email', {
-      email,
-      text: `Your payment of $${amount} has completed successfully`,
-    });
+    if (!this.notificationsService) {
+      this.notificationsService =
+        this.client.getService<NotificationsServiceClient>(
+          NOTIFICATIONS_SERVICE_NAME,
+        );
+    }
+
+    this.notificationsService
+      .notifyEmail({
+        email,
+        text: `Your payment of $${amount} has completed successfully`,
+      })
+      .subscribe(() => {});
 
     return paymentIntent;
   }

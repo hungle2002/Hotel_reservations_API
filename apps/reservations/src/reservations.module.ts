@@ -4,8 +4,10 @@ import { ReservationsController } from './reservations.controller';
 import {
   DatabaseModule,
   LoggerModule,
-  AUTH_SERVICE,
-  PAYMENTS_SERVICE,
+  AUTH_PACKAGE_NAME,
+  PAYMENTS_PACKAGE_NAME,
+  AUTH_SERVICE_NAME,
+  PAYMENTS_SERVICE_NAME,
 } from '@app/common';
 import { ReservationsRepository } from './reservations.repository';
 import {
@@ -15,6 +17,7 @@ import {
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -36,23 +39,28 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     }),
     ClientsModule.registerAsync([
       {
-        name: AUTH_SERVICE,
+        name: AUTH_SERVICE_NAME,
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
+          transport: Transport.GRPC,
           options: {
-            host: configService.get<string>('AUTH_HOST'),
-            port: configService.get<number>('AUTH_PORT'),
+            package: AUTH_PACKAGE_NAME,
+            protoPath: join(__dirname, '../../../../../../proto/auth.proto'),
+            url: configService.getOrThrow<string>('AUTH_GRPC_URL'),
           },
         }),
         inject: [ConfigService],
       },
       {
-        name: PAYMENTS_SERVICE,
+        name: PAYMENTS_SERVICE_NAME,
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
+          transport: Transport.GRPC,
           options: {
-            host: configService.get<string>('PAYMENTS_HOST'),
-            port: configService.get<number>('PAYMENTS_PORT'),
+            package: PAYMENTS_PACKAGE_NAME,
+            protoPath: join(
+              __dirname,
+              '../../../../../../proto/payments.proto',
+            ),
+            url: configService.getOrThrow<string>('PAYMENTS_GRPC_URL'),
           },
         }),
         inject: [ConfigService],
