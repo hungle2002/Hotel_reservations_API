@@ -3,7 +3,7 @@ syntax = "proto3";
 package payments;
 
 service PaymentsService {
-  rpc CreateCharge(CreateChargeMessage) returns CreateChargeResponse;
+  rpc CreateCharge(CreateChargeMessage) returns (CreateChargeResponse);
 }
 
 message CreateChargeResponse {
@@ -20,5 +20,5 @@ message CardMessage {
   string cvc = 1;
   optional int32 exp_month = 2;
   optional int32 exp_year = 3;
-  optional int32 number = 4;
+  optional string number = 4;
 }
